@@ -3,22 +3,48 @@ from . import models
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.urls import reverse_lazy
-
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Recipe
-from .serializers import RecipeSerializer
+from django.db.models import Count
+from .serializers import RecipeSerializer 
+from rest_framework.pagination import PageNumberPagination
+
+from django.core.paginator import Paginator
+
+
+class PopularRecipeApi(APIView):
+    def get(self, request, *args, **kwargs):
+        # Annotate recipes with a popularity count based on title occurrences
+        popular_recipes = Recipe.objects.values('title').annotate(title_count=Count('title')).order_by('-title_count')
+
+        
+        recipes = []
+        for recipe in popular_recipes:
+            recipe_instance = Recipe.objects.filter(title=recipe['title']).first()
+            if recipe_instance:
+                recipes.append(recipe_instance)
+
+        # Serialize data
+        serializer = RecipeSerializer(recipes, many=True)
+        return Response(serializer.data)
+
+
+class RecipePagination(PageNumberPagination):
+    page_size = 5  # Show 5 recipes per page
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 class RecipeApi(APIView):
     def get(self,request):
-        queryset=Recipe.objects.all()
-        serializer=RecipeSerializer(queryset,many=True)
-        return Response({
-            "status":True,
-             "data": serializer.data
-        })
-             
-        
+        queryset = Recipe.objects.all()
+        paginator = RecipePagination()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        serializer = RecipeSerializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+
 
 # Create your views here.
 def home(request):
