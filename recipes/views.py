@@ -10,8 +10,54 @@ from .models import Recipe
 from django.db.models import Count
 from .serializers import RecipeSerializer 
 from rest_framework.pagination import PageNumberPagination
-
 from django.core.paginator import Paginator
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+class RecipePagination(PageNumberPagination):
+    page_size = 5  # Show 5 recipes per page
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+class RecipeListCreateView(APIView):
+    """Handles GET (list all) and POST (create new) recipes"""
+    
+    def get(self, request):
+        recipes = Recipe.objects.all()
+        paginator = RecipePagination()
+        paginated_queryset = paginator.paginate_queryset(recipes, request)
+        serializer = RecipeSerializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(serializer.data)
+        
+
+    def post(self, request):
+        serializer = RecipeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class Recipe_DetailView(APIView):
+    """Handles GET (retrieve), PUT (update), and DELETE (remove) a single recipe"""
+    
+    def get(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        serializer = RecipeSerializer(recipe)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        serializer = RecipeSerializer(recipe, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        recipe.delete()
+        return Response({"message": "Recipe deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class PopularRecipeApi(APIView):
@@ -30,19 +76,6 @@ class PopularRecipeApi(APIView):
         serializer = RecipeSerializer(recipes, many=True)
         return Response(serializer.data)
 
-
-class RecipePagination(PageNumberPagination):
-    page_size = 5  # Show 5 recipes per page
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-class RecipeApi(APIView):
-    def get(self,request):
-        queryset = Recipe.objects.all()
-        paginator = RecipePagination()
-        paginated_queryset = paginator.paginate_queryset(queryset, request)
-        serializer = RecipeSerializer(paginated_queryset, many=True)
-        return paginator.get_paginated_response(serializer.data)
 
 
 
@@ -90,7 +123,6 @@ class RecipeDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
         recipe=self.get_object()
         return self.request.user == recipe.author  
 
-  
 
 def about(request):
     return render(request,'recipes/about.html',{'title':'About us page'})

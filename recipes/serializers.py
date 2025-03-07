@@ -6,6 +6,4 @@ class RecipeSerializer(serializers.ModelSerializer):
         model= Recipe
         fields='__all__'
 
-class LoginSerializer(serializers.Serializer):
-    username=serializers.CharField()
-    pasword=serializers.CharField()       
+   
