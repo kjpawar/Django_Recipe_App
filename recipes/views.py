@@ -3,7 +3,6 @@ from . import models
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.urls import reverse_lazy
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Recipe
@@ -13,6 +12,10 @@ from rest_framework.pagination import PageNumberPagination
 from django.core.paginator import Paginator
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
+
 
 class RecipePagination(PageNumberPagination):
     page_size = 5  # Show 5 recipes per page
@@ -20,7 +23,8 @@ class RecipePagination(PageNumberPagination):
     max_page_size = 100
 
 class RecipeListCreateView(APIView):
-    """Handles GET (list all) and POST (create new) recipes"""
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticatedOrReadOnly]
     
     def get(self, request):
         recipes = Recipe.objects.all()
@@ -39,8 +43,10 @@ class RecipeListCreateView(APIView):
 
 
 class Recipe_DetailView(APIView):
-    """Handles GET (retrieve), PUT (update), and DELETE (remove) a single recipe"""
     
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
+
     def get(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
         serializer = RecipeSerializer(recipe)
@@ -61,10 +67,11 @@ class Recipe_DetailView(APIView):
 
 
 class PopularRecipeApi(APIView):
+    authentication_classes=[TokenAuthentication]
+    permission_classes=[IsAuthenticated]
     def get(self, request, *args, **kwargs):
-        # Annotate recipes with a popularity count based on title occurrences
         popular_recipes = Recipe.objects.values('title').annotate(title_count=Count('title')).order_by('-title_count')
-
+        
         
         recipes = []
         for recipe in popular_recipes:
@@ -94,6 +101,7 @@ class RecipeListView(ListView):
 
 class RecipeDetailView(DetailView):
     model=models.Recipe  
+  
 
 class RecipeCreateView(LoginRequiredMixin,CreateView):
     model=models.Recipe

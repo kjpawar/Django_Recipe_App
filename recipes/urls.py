@@ -2,10 +2,12 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 from .views import RecipeListCreateView, Recipe_DetailView,PopularRecipeApi
+from rest_framework.authtoken.views import obtain_auth_token
+
 
 
 urlpatterns = [
-    
+    path('gettoken/', obtain_auth_token),
     path('api/recipes/', RecipeListCreateView.as_view(), name='recipe-list-create'),
     path('api/recipes/<int:pk>/', Recipe_DetailView.as_view(), name='recipe-detail'),
     path('api/recipes/popular/',PopularRecipeApi.as_view()),
