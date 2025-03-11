@@ -24,7 +24,7 @@ class RecipePagination(PageNumberPagination):
 
 class RecipeListCreateView(APIView):
     authentication_classes=[TokenAuthentication]
-    permission_classes=[IsAuthenticated]
+    permission_classes=[IsAuthenticatedOrReadOnly]
     
     def get(self, request):
         recipes = Recipe.objects.all()
