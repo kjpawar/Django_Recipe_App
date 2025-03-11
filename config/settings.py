@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-#_zg=jfeak$$bn1ua&r*d&oi=14yd)8t3vtbgb7zdx+qoyxx3f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app','http://127.0.0.1:8000/','localhost','127.0.0.1']
+ALLOWED_HOSTS = ['django-recipe-app.vercel.app','127.0.0.1']
 
 
 # Application definition
@@ -133,6 +134,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -145,3 +147,8 @@ LOGIN_REDIRECT_URL='recipes-home'
 
 LOGIN_URL = 'user-login'
 LOGOUT_URL = 'user-logout'
+
+
+# manually added
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
