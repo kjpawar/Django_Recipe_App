@@ -5,7 +5,7 @@
         "config":{"maxLamdaSize":"15mb","runtime":"python3.9"}
     }],
     "routes":[{
-        "src":"/",
+        "src":"/(.*)",
         "dest":"/"
     }]
 }
