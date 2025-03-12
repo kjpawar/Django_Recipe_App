@@ -13,8 +13,8 @@ from django.core.paginator import Paginator
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
+# from rest_framework.authentication import TokenAuthentication
+# from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 
 
 class RecipePagination(PageNumberPagination):
@@ -23,8 +23,8 @@ class RecipePagination(PageNumberPagination):
     max_page_size = 100
 
 class RecipeListCreateView(APIView):
-    authentication_classes=[TokenAuthentication]
-    permission_classes=[IsAuthenticatedOrReadOnly]
+    # authentication_classes=[TokenAuthentication]
+    # permission_classes=[IsAuthenticatedOrReadOnly]
     
     def get(self, request):
         recipes = Recipe.objects.all()
@@ -44,8 +44,8 @@ class RecipeListCreateView(APIView):
 
 class Recipe_DetailView(APIView):
     
-    authentication_classes=[TokenAuthentication]
-    permission_classes=[IsAuthenticated]
+    # authentication_classes=[TokenAuthentication]
+    # permission_classes=[IsAuthenticated]
 
     def get(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
@@ -67,8 +67,8 @@ class Recipe_DetailView(APIView):
 
 
 class PopularRecipeApi(APIView):
-    authentication_classes=[TokenAuthentication]
-    permission_classes=[IsAuthenticatedOrReadOnly]
+    # authentication_classes=[TokenAuthentication]
+    # permission_classes=[IsAuthenticatedOrReadOnly]
     def get(self, request, *args, **kwargs):
         popular_recipes = Recipe.objects.values('title').annotate(title_count=Count('title')).order_by('-title_count')
         
