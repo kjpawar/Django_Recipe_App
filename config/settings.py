@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#_zg=jfeak$$bn1ua&r*d&oi=14yd)8t3vtbgb7zdx+qoyxx3f'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,14 +99,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'Kajal@123',
-        'HOST': 'localhost',
-        'PORT': 5432,
-    }
-}
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
+    }}
 
 REST_FRAMEWORK={
     'DEFAULT_AUTHENTICATION_CLASSES':[
@@ -153,7 +153,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
+STATIC_ROOT=BASE_DIR / "static"
 
 
 # Default primary key field type
@@ -173,11 +174,11 @@ LOGOUT_URL = 'user-logout'
 # manually added
 
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
 
-# Ensure this path exists
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+# # Ensure this path exists
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
